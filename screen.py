@@ -7,7 +7,7 @@ going to need to brew install selenium, (cask) chromedriver
 '''
 
 # Using Chrome to access web
-driver = webdriver.Chrome()
+driver = webdriver.Chrome() #argument to path of chromedriver
 driver.implicitly_wait(5) # seconds
 # Open the website
 driver.get('https://play2048.co/')
