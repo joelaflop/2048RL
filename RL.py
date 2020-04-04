@@ -1,5 +1,6 @@
 from Agent import myAgent
 import random
+import time
 '''
 https://gym.openai.com/docs/
 '''
@@ -8,17 +9,19 @@ try:
     agent = myAgent()
     observation = agent.reset()
     print(observation)
-    for t in range(2):
+    time.sleep(5)
+    for t in range(30):
         #env.render()
         action = random.randint(0,3)
         observation, reward, done, info = agent.step(action)
         print(observation)
+        time.sleep(2)
         if done:
             print("Episode finished after {} timesteps".format(t+1))
             break
     pass
 except Exception as e:
-    print (e)
+    print (e.trace)
 finally:
     agent.close()
     pass

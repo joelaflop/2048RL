@@ -36,14 +36,10 @@ class myWebDriver():
             name = t.get_attribute("class")
 
             if 'tile tile' in name:
-                name = name.replace('tile tile-','').replace(' tile-position-',':-:').replace(' tile-new', '')
+                name = name.replace('tile tile-','').replace(' tile-position-',':-:').replace(' tile-new', '').replace(' tile-merged','')
                 value, location = name.split(':-:')
                 column,row = location.split('-')
-
                 b[int(row)-1, int(column)-1] = int(value)
-
-
-
         return b
 
     def move(self, d):
