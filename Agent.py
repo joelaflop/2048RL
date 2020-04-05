@@ -14,10 +14,9 @@ class myAgent():
 
         done = False
 
-        info = 0
-        print('-------')
-        observation = self.driver.getBoard()
+        info = self.driver.getInfo()
 
+        observation = self.driver.getBoard()
 
         return observation, reward, done, info
 

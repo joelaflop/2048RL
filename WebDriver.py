@@ -42,12 +42,15 @@ class myWebDriver():
                 b[int(row)-1, int(column)-1] = int(value)
         return b
 
+    def getInfo(self):
+        return None
+
     def move(self, d):
 
         oldScore = self.getScore()
         self.game.send_keys(self.directionMap[d])
         newScore = self.getScore()
-        time.sleep(1)
+        time.sleep(.03)
 
         return oldScore, newScore
 
