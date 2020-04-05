@@ -5,20 +5,21 @@ class myAgent():
     def __init__ (self):
         self.driver = myWebDriver()
 
+
     def reset(self):
-        return self.driver.getBoard()
+        self.observation = self.driver.getBoard()
+        return self.observation
 
     def step(self, d):
         oldScore, newScore = self.driver.move(d)
-        reward = newScore - oldScore
 
         done = False
 
         info = self.driver.getInfo()
 
-        observation = self.driver.getBoard()
+        self.observation = self.driver.getBoard()
 
-        return observation, reward, done, info
+        return self.observation, newScore, done, info
 
     def close(self):
         self.driver.close()

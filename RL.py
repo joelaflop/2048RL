@@ -1,39 +1,34 @@
 from Agent import myAgent
 import random
 import numpy as np
-import Helper2048 as helper
+from Helper2048 import Board
+from Logger import myLogger
+
+
 '''
 https://gym.openai.com/docs/
 '''
 
 try:
     agent = myAgent()
+    logger = myLogger()
     observation = agent.reset()
-    for t in range(10000):
+    for t in range(20000):
 
-        head = helper.Board(observation, num_levels = 7)
+        head = Board(observation, num_levels = 7)
 
         rewards = head.calc_rewards()
+        action = np.argmax(np.array(rewards))
+        logger.log(head, observation, rewards, action)
 
-        args = np.argsort(np.array(rewards))
-        i = 3
-        action = args[i]
-        while (np.equal(observation, head.qstates[action]).all()):
-            i -=1
-            action = args[i]
-
-        print(observation)
-        print(rewards)
-        print(action)
-
-
-        observation, reward, done, info = agent.step(action)
+        observation, score, done, info = agent.step(action)
         if done:
             print("Episode finished after {} timesteps".format(t+1))
             break
     pass
 except Exception as e:
-    print (e.trace)
+    print(e)
 finally:
     agent.close()
+    logger.close()
     pass

@@ -36,10 +36,17 @@ class myWebDriver():
             name = t.get_attribute("class")
 
             if 'tile tile' in name:
-                name = name.replace('tile tile-','').replace(' tile-position-',':-:').replace(' tile-new', '').replace(' tile-merged','')
-                value, location = name.split(':-:')
-                column,row = location.split('-')
-                b[int(row)-1, int(column)-1] = int(value)
+                try:
+                    name = name.replace('tile tile-','').replace(' tile-position-',':-:').replace(' tile-new', '').replace(' tile-merged','')
+                    value, location = name.split(':-:')
+                    column,row = location.split('-')
+                    b[int(row)-1, int(column)-1] = int(value)
+                except:
+                    print(name)
+                    print(value)
+                    print(location)
+                    print(column)
+                    print(row)
         return b
 
     def getInfo(self):
