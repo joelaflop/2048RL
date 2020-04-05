@@ -1,15 +1,10 @@
 import numpy as np
 import random
 
-weights = np.array([[2**0,2**1,2**2,2**3],
-                    [2**4,2**5,2**6,2**7],
-                    [2**11,2**10,2**9,2**8],
-                    [2**12,2**13,2**14,2**15]])
-
 class Board():
     def __init__ (self, board, r = 0, p = 1, move = -1, num_levels = 2):
         self.qstates = qStates(board)
-        self.nstates = newStates(self.qstates) #list of 4 lists
+        self.nstates = newStates(self.qstates) #4 lists of lists
         self.move = move
         self.p = p
         self.reward = r
@@ -45,9 +40,13 @@ class Board():
             return self.reward
 
 
-
-
-
+'''
+helper functions
+'''
+weights = np.array([[2**0,2**1,2**2,2**3],
+                    [2**4,2**5,2**6,2**7],
+                    [2**11,2**10,2**9,2**8],
+                    [2**12,2**13,2**14,2**15]])
 
 def reward(a, old):
     reward = 0
@@ -114,7 +113,6 @@ def addWorstSpawn(a):
                     maxc = c
                     aa[(maxr, maxc)] = 2
                     alist = [aa]
-            #aa[spawn] = 2 if random.random() < .9 else 4
     else:
         alist = [a]
     return alist
