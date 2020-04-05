@@ -50,7 +50,7 @@ class myWebDriver():
         oldScore = self.getScore()
         self.game.send_keys(self.directionMap[d])
         newScore = self.getScore()
-        time.sleep(.03)
+        time.sleep(.05)
 
         return oldScore, newScore
 

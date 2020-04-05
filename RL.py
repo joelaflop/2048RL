@@ -9,22 +9,77 @@ https://gym.openai.com/docs/
 try:
     agent = myAgent()
     observation = agent.reset()
-    for t in range(1000):
-        Qup, Qdown, Qright, Qleft, Sup, Sdown, Sright, Sleft = helper.newStates(observation)
+    for t in range(10000):
+        '''Qstates1 = helper.qStates(observation)
+        Nstates1 = helper.newStates(Qstates1) #now list of lists of boards
 
-        Rs = np.empty(4)
+        rewards1 = []
+        Qstates2 = []
+        for l in Nstates1:
+            rewardsl = helper.reward(l, observation)
+            rewards1.append(sum(rewardsl) / len(rewardsl))
+            subQ = []
+            for b in l:
+                subQ.append(helper.qStates(b))
+            Qstates2.append(subQ)'''
 
-        Rs[0] = helper.reward(Qup, observation)
-        Rs[1] = helper.reward(Qdown, observation)
-        Rs[2] = helper.reward(Qright, observation)
-        Rs[3] = helper.reward(Qleft, observation)
+        head = helper.Board(observation, move = 5, num_levels = 5)
 
-        action = np.argmax(Rs)
+        rewards = head.calc_rewards()
+
+        args = np.argsort(np.array(rewards))
+        i = 3
+        action = args[i]
+        while (np.equal(observation, head.qstates[action]).all()):
+            i -=1
+            action = args[i]
+
+        print(observation)
+        print(rewards)
+        print(action)
+        print(helper.reward(head.qstates[action], observation))
+        print('down')
+        print(helper.reward(head.qstates[1], observation))
+        print('right')
+        print(helper.reward(head.qstates[2], observation))
+        print('-')
+
 
         observation, reward, done, info = agent.step(action)
         if done:
             print("Episode finished after {} timesteps".format(t+1))
             break
+
+
+
+
+
+        '''
+        Qstates2 = [helper.qStates(Nstates1[0]),
+                    helper.qStates(Nstates1[1]),
+                    helper.qStates(Nstates1[2]),
+                    helper.qStates(Nstates1[3])]
+
+        Nstates2 = [helper.newStates(Qstates2[0]),
+                    helper.newStates(Qstates2[1]),
+                    helper.newStates(Qstates2[2]),
+                    helper.newStates(Qstates2[3])]
+
+        #rewards1 = helper.reward(Nstates1, observation)
+        rewards2 = [[new*rewards1[0] for new in helper.reward(Nstates2[0], Nstates1[0])],
+                    [new*rewards1[1] for new in helper.reward(Nstates2[1], Nstates1[1])],
+                    [new*rewards1[2] for new in helper.reward(Nstates2[2], Nstates1[2])],
+                    [new*rewards1[3] for new in helper.reward(Nstates2[3], Nstates1[3])]]
+        print(np.array(rewards2))'''
+
+
+
+
+        #action = int(np.argmax(np.array(rewards2))/4)
+        '''action = np.argmax(np.array(rewards1))
+
+        print(action)
+        '''
     pass
 except Exception as e:
     print (e.trace)
