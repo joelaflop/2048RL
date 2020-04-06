@@ -1,68 +1,70 @@
 import numpy as np
 import random
-
-
-
-class Board():
-    def __init__ (self, board, r = 0, p = 1, move = -1, num_levels = 2):
-        self.move = move
-        self.p = p
-        self.reward = r
-        self.board = board
-        self.children = []
-
-        if num_levels > 0:
-            qstates, nstates = newStates(self.board) #4 lists of lists
-            count = 0
-            for l in nstates:
-                count += len(l)
-            for d, dir in enumerate(nstates):
-                l = []
-                for b in dir:
-                    if not boardEquals(b, self.board):
-                        l.append(Board(b, r = reward(b, self.board), p = self.p/count, move = d, num_levels = num_levels-1))
-                self.children.append(l)
-
-    def calc_rewards(self):
-        rewards = []
-        for dir in self.children:
-            r = 0
-            for child in dir:
-                r = max(r, child.child_rewards())
-            rewards.append(r)
-        return rewards
-
-    def child_rewards(self):
-        if(len(self.children) > 0):
-            r = 0
-            for dir in self.children:
-                for child in dir:
-                    r = max(r, self.reward*self.p + child.child_rewards())
-            return r if self.reward > 0 else 0
-        else:
-            return self.reward*self.p
-
+import math
 
 '''
 helper functions
 '''
-weights = np.array([[0,2**0,2**1,2**2],
-                    [2**3,2**4,2**5,2**6],
-                    [2**10,2**9,2**8,2**7],
-                    [2**16,2**17,2**18,2**19]])
 
-def reward(a, old):
+def newBoard():
+    b = np.zeros((4,4))
+
+    r = random.randint(0,3)
+    c = random.randint(0,3)
+
+    rr = random.randint(0,3)
+    cc = random.randint(0,3)
+
+    while rr == r and cc == c:
+        rr = random.randint(0,3)
+        cc = random.randint(0,3)
+
+    b[r, c] = 2 if random.random() < .9 else 4
+    b[rr, cc] = 2 if random.random() < .9 else 4
+
+    return b
+
+weights = np.array([[2**2,2,1,0],
+                    [2**11,2**10,2**9,2**8],
+                    [2**18,2**17,2**16,2**15],
+                    [2**27,2**28,2**29,2**30]])
+new_weights = np.flip(np.array([0,2**0,2**1,2**2, 2**3,2**4,2**5,2**6, 2**7,2**8,2**9,2**10, 2**16,2**17,2**18,2**19]))
+newer_weights = np.array([0, 0, 1, 2,  3, 4, 5, 6,  7, 8, 9, 10,  16, 17, 18, 19])
+
+def manualreward(new, old):
     reward = 0
     nonmoves = 0
     for r in range(4):
         for c in range(4):
-            if(a[r,c] == old[r,c]):
+            if(new[r,c] == old[r,c]):
                 nonmoves += 1
-            reward += (a[r,c])*weights[r,c]
-    return reward if nonmoves < 16 else 0
+            reward += (new[r,c])*weights[r,c] # 0 if new[r,c] == 0 else math.log(new[r,c],2)
+    return reward  if nonmoves < 16 else 0 #- 10*unsortedness(a)
+
+def unsortedness(a):
+    reward = 0
+    zig = zigzagOrder(np.copy(a))
+    sorted = np.sort(zigzagOrder(np.copy(a)))
+    wrongs = np.zeros(16)
+
+    distance = 0
+    for i in range (16):
+        if zig[i] != sorted [i]:
+            distance += 1
+            wrongs[i] = 1
+
+    difference = np.dot(wrongs, new_weights)
+
+    '''print(zig)
+    print(sorted)
+    print(wrongs)'''
+
+    reward = np.sum(difference)
+
+    return reward
 
 
-def newStates(a):
+def worstNewStates(a):
     u = np.copy(a.T)
     d = np.flip(np.copy(a.T), axis = 1)
     r = np.flip(np.copy(a), axis = 1)
@@ -80,6 +82,24 @@ def newStates(a):
 
     return [u,d,r,l], [uu, dd, rr, ll]
 
+def randomNewStates(a):
+    u = np.copy(a.T)
+    d = np.flip(np.copy(a.T), axis = 1)
+    r = np.flip(np.copy(a), axis = 1)
+    l = np.copy(a)
+
+    u = moveLeftAndCombine(u).T
+    d = np.flip(moveLeftAndCombine(d), axis = 1).T
+    r = np.flip(moveLeftAndCombine(r), axis = 1)
+    l = moveLeftAndCombine(l)
+
+    uu = [np.copy(u)] if boardEquals(a, u) else addRandomSpawns(np.copy(u))
+    dd = [np.copy(d)] if boardEquals(a, d) else addRandomSpawns(np.copy(d))
+    rr = [np.copy(r)] if boardEquals(a, r) else addRandomSpawns(np.copy(r))
+    ll = [np.copy(l)] if boardEquals(a, l) else addRandomSpawns(np.copy(l))
+
+    return [u,d,r,l], [uu, dd, rr, ll]
+
 def addRandomSpawns(a):
     zlist = []
     for r in range(4):
@@ -89,10 +109,13 @@ def addRandomSpawns(a):
     if zlist:
         alist = []
         for spawn in zlist:
-            aa = np.copy(a)
-            aa[spawn] = 2
-            #aa[spawn] = 2 if random.random() < .9 else 4
-            alist.append(aa)
+            a2 = np.copy(a)
+            a2[spawn] = 2
+            a4 = np.copy(a)
+            a4[spawn] = 4
+            for i in range(9):
+                alist.append(a2)
+            alist.append(a4)
     else:
         alist = [a]
     return alist
@@ -148,3 +171,6 @@ def boardEquals(a, b):
             if(a[r,c] == b[r,c]):
                 e += 1
     return e == 16
+
+def zigzagOrder(a):
+    return np.concatenate((np.flip(a[0]), a[1], np.flip(a[2]), a[3]))
