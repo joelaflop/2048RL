@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import math
-import Helper2048 as h
+import HelperBase2 as h
 
 class BoardTree():
     def __init__ (self, board, r = 0, p = 1, move = -1, num_levels = 2):
@@ -37,8 +37,11 @@ class BoardTree():
         if(len(self.children) > 0):
             r = 0
             for dir in self.children:
-                for child in dir:
-                    r = max(r, (self.reward) + child.child_rewards(n+1)) #*(self.gamma**n)
+                if dir:
+                    for child in dir:
+                        r = max(r, ((self.reward) + child.child_rewards(n+1))) #*(self.gamma**n)
+                else:
+                    r = max(r, (self.reward))
             return r if self.reward > 0 else 0
         else:
             return self.reward
