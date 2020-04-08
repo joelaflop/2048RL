@@ -20,9 +20,12 @@ class myAgent():
         done = (h.boardEquals(newBoard, self.observation))
 
         reward = h.manualreward(newBoard, self.observation)
+
+        info = h.merges(newBoard, self.observation)
+
         self.observation = newBoard
 
-        info = 'no info'
+
 
 
 

@@ -41,6 +41,8 @@ def manualreward(new, old):
             reward += (new[r,c])*weights[r,c] # 0 if new[r,c] == 0 else math.log(new[r,c],2)
     return reward  if nonmoves < 16 else 0 #- 10*unsortedness(a)
 
+
+
 def emptinessreward(new, old):
     newE = 0
     oldE = 0
@@ -50,7 +52,18 @@ def emptinessreward(new, old):
                 newE += 1
             if(old[r,c] == 0):
                 oldE += 1
-    return (newE-oldE)/17 
+    return (newE-oldE)/17
+
+def merges(new, old):
+    newE = 0
+    oldE = 0
+    for r in range(4):
+        for c in range(4):
+            if(new[r,c] == 0):
+                newE += 1
+            if(old[r,c] == 0):
+                oldE += 1
+    return (newE-oldE + 1)
 
 
 def unsortedness(a):
