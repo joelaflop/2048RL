@@ -54,8 +54,9 @@ try:
         head = BoardTree(board, num_levels = 5)
 
         rewards = head.calc_rewards()
-        action = np.argmax(np.array(rewards))
-        logger.logold(head, board, rewards, action)
+        #action = np.argmax(np.array(rewards))
+        action = agent.selectBestAction(board)
+        #logger.logold(head, board, rewards, action)
 
         board, score, done, info = agent.step(action)
         if done:

@@ -415,7 +415,7 @@ class Net(nn.Module):
         #Size changes from (20, 64, 64) to (30, 32, 32)
         p = F.max_pool2d(p, kernel_size=2)
         #print('pool1 shape: ' + str(x.shape))
-        p = F.relu(p)
+        p = F.prelu(p, torch.tensor(.25))
         #Size changes from (20, 32, 32) to (30, 32, 32)
         p = self.convP2(p)
         #print('conv2 shape: ' + str(x.shape))
@@ -424,7 +424,7 @@ class Net(nn.Module):
         #Size changes from (30, 32, 32) to (30, 16, 16)
         p = F.max_pool2d(p, kernel_size=2)
         #print('pool2 shape: ' + str(x.shape))
-        p = F.relu(p)
+        p = F.prelu(p, torch.tensor(.25))
         p = p.view((-1, 1024))
         #print('post view shape: ' + str(x.shape))
         p = self.fcP1(p)
@@ -437,7 +437,7 @@ class Net(nn.Module):
         #Size changes from (20, 64, 64) to (30, 32, 32)
         v = F.max_pool2d(v, kernel_size=2)
         #print('pool1 shape: ' + str(x.shape))
-        v = F.relu(v)
+        v = F.prelu(v, torch.tensor(.25))
         #Size changes from (20, 32, 32) to (30, 32, 32)
         v = self.convV2(v)
         #print('conv2 shape: ' + str(x.shape))
@@ -446,7 +446,7 @@ class Net(nn.Module):
         #Size changes from (30, 32, 32) to (30, 16, 16)
         v = F.max_pool2d(v, kernel_size=2)
         #print('pool2 shape: ' + str(x.shape))
-        v = F.relu(v)
+        v = F.prelu(v, torch.tensor(.25))
         v = v.view((-1, 1024))
         #print('post view shape: ' + str(x.shape))
         v = self.fcV1(v)
@@ -547,10 +547,9 @@ class Runner(mp.Process):
                 a = self.agent.selectChoiceAction(probs)
 
                 next_state, reward, done, maxTile = self.agent.step(a)
-                '''if done: reward -= 16 if np.max(next_state) == 6 else \
-                                    8 if np.max(next_state) == 7 else \
-                                    4 if np.max(next_state) == 8 else \
-                                    2 if np.max(next_state) == 9 else 0'''
+                '''if done: reward -= 1 if np.max(next_state) == 6 else \
+                                    .5 if np.max(next_state) == 7 else \
+                                    .25 if np.max(next_state) == 8 else 0'''
                 ep_reward += reward
                 actionbuffer.append(a)
                 statebuffer.append(s)
@@ -603,7 +602,7 @@ def update(optimizer, local_net, brain, done, next_state, batch_states, batch_ac
         batch_rewards,
         last_state_value)
     lossacc.append(loss.item())
-    loss.backward()
+    #loss.backward()
 
     with lossAvg.get_lock(): #running average for plotting computation
         if lossAvg.value == 0.:
@@ -616,7 +615,7 @@ def update(optimizer, local_net, brain, done, next_state, batch_states, batch_ac
     #update the global brain
     for lp, gp in zip(local_net.parameters(), brain.parameters()):
         gp._grad = lp.grad
-    optimizer.step()
+    #optimizer.step()
 
     # pull global parameters
     local_net.load_state_dict(brain.state_dict())
@@ -646,7 +645,7 @@ def store_episode(global_episode, global_episode_r, episode_reward, res_queue, n
 if __name__ == "__main__":
     brain = load_model('2048net.th')        # global network
     brain.share_memory()         # share the global parameters in multiprocessing
-    optimizer = SharedAdam(brain.parameters(), lr=1e-4)      # global optimizer betas=(0.92, 0.999)
+    optimizer = SharedAdam(brain.parameters(), lr=1e-5)      # global optimizer betas=(0.92, 0.999)
     maxTileQueue, maxTileAvg = mp.Queue(), mp.Value('d', 8.)
     largestTileAvgSeen = mp.Value('d', 8.)
     lossQueue, lossAvg = mp.Queue(), mp.Value('d', 0.)

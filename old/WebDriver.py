@@ -21,6 +21,9 @@ class myWebDriver():
 
         self.game = self.driver.find_element_by_tag_name('body')
 
+    def reset(self):
+        print('ugh')
+
     def getScore(self):
         e = self.driver.find_element_by_class_name("score-container").text
         if '\n' not in e:
@@ -49,6 +52,28 @@ class myWebDriver():
                     print(row)
         return b
 
+    def getlgBoard(self):
+        b = np.zeros((4,4))
+        tiles = self.driver.find_element_by_class_name("tile-container").find_elements_by_css_selector("*")
+        for t in tiles:
+
+            name = t.get_attribute("class")
+
+            if 'tile tile' in name:
+                try:
+                    name = name.replace('tile tile-','').replace(' tile-position-',':-:').replace(' tile-new', '').replace(' tile-merged','')
+                    value, location = name.split(':-:')
+                    column,row = location.split('-')
+                    b[int(row)-1, int(column)-1] = int(value)
+                except:
+                    print(name)
+                    print(value)
+                    print(location)
+                    print(column)
+                    print(row)
+        b[b == 0] = 1
+        return np.log2(b)
+
     def getInfo(self):
         return None
 
@@ -57,7 +82,7 @@ class myWebDriver():
         oldScore = self.getScore()
         self.game.send_keys(self.directionMap[d])
         newScore = self.getScore()
-        time.sleep(.05)
+
 
         return oldScore, newScore
 
